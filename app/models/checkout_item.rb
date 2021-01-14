@@ -1,0 +1,2 @@
+class CheckoutItem < ApplicationRecord
+end
