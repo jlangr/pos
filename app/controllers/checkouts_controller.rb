@@ -4,7 +4,9 @@ class CheckoutsController < ApplicationController
   LINE_WIDTH=45
 
   def show
-    json_response(@checkout)
+    items = CheckoutItem.find(@checkout.id)
+    with_items = @checkout.serializable_hash.merge({ items: items })
+    json_response(with_items)
   end
 
   def create
@@ -26,8 +28,6 @@ class CheckoutsController < ApplicationController
   end
 
   def checkout_total
-    # verify checkout id
-    
     messages = []
     discount = @checkout.member_name ? @checkout.member_discount : 0
 
@@ -105,6 +105,7 @@ class CheckoutsController < ApplicationController
     checkout_item = CheckoutItem.new(:upc => upc)
     @checkout.checkout_items << checkout_item
     checkout_item.save!
+    @checkout.save!
   end
 
   def checkout_params
