@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_13_234134) do
+ActiveRecord::Schema.define(version: 2021_01_14_001847) do
+
+  create_table "checkout_items", force: :cascade do |t|
+    t.string "upc"
+    t.integer "checkout_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["checkout_id"], name: "index_checkout_items_on_checkout_id"
+  end
 
   create_table "checkouts", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -18,12 +26,12 @@ ActiveRecord::Schema.define(version: 2021_01_13_234134) do
   end
 
   create_table "items", force: :cascade do |t|
+    t.string "upc"
     t.decimal "price"
     t.string "description"
     t.boolean "is_exempt"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "upc"
   end
 
   create_table "members", force: :cascade do |t|
@@ -34,4 +42,5 @@ ActiveRecord::Schema.define(version: 2021_01_13_234134) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "checkout_items", "checkouts"
 end

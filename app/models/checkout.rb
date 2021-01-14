@@ -1,3 +1,3 @@
 class Checkout < ApplicationRecord
-  has_many :items, dependent: :destroy
+  has_many :checkout_items, dependent: :destroy
 end

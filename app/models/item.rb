@@ -1,3 +1,5 @@
 class Item < ApplicationRecord
-  belongs_to :checkout
+  def to_str
+    "#{description} @ #{price} [#{upc}]"
+  end
 end

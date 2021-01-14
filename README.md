@@ -22,3 +22,15 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+
+# Rails stuff
+
+```
+rails generate migration add_checkout_ref_to_checkout_items checkout_items:references
+```
+
+
+http POST :3000/checkout
+http POST :3000/items price=2.95 description=eggs is_exempt=false upc=12345
+http POST :3000/checkouts/1/scan/12345
