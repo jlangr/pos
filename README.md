@@ -31,7 +31,9 @@ rails generate migration add_checkout_ref_to_checkout_items checkout_items:refer
 ```
 rake db:drop db:create db:migrate
 
-http post :3000/checkouts
 http post :3000/items price=2.95 description=eggs is_exempt=false upc=12345
+http post :3000/members name="Jeff Langr" phone=719-287-4335 discount=0.02
+
+http post :3000/checkouts
 http post :3000/checkouts/1/scan/12345
 http get :3000/checkouts/1/total

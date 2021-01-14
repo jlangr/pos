@@ -8,7 +8,7 @@ class ItemsController < ApplicationController
 
   # GET /items/:id
   def show
-    json_response(@item, :created)
+    json_response(@item)
   end
 
   # POST /items/:item_id
