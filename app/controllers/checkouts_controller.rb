@@ -3,10 +3,12 @@ class CheckoutsController < ApplicationController
   before_action :set_checkout, only: [:show, :scan, :checkout_total, :scan_member]
   LINE_WIDTH=45
 
+  # solve with serializers?
   def show
-    items = CheckoutItem.find(@checkout.id)
-    with_items = @checkout.serializable_hash.merge({ items: items })
-    json_response(with_items)
+    items = CheckoutItem.where(checkout_id: @checkout.id)
+    items_hash = items.map {| item | item.serializable_hash }
+    with_items = @checkout.serializable_hash.merge({ items: items_hash })
+     json_response(with_items)
   end
 
   def create
@@ -113,6 +115,7 @@ class CheckoutsController < ApplicationController
   end
 
   def set_checkout
-    @checkout = Checkout.find(params[:id])
+#    @checkout = Checkout.find(params[:id])
+    @checkout = Checkout.includes(:checkout_items).find(params[:id])
   end
 end
