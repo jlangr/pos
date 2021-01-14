@@ -37,3 +37,4 @@ http post :3000/members name="Jeff Langr" phone=719-287-4335 discount=0.02
 http post :3000/checkouts
 http post :3000/checkouts/1/scan/12345
 http get :3000/checkouts/1/total
+http post :3000/checkouts/1/scan_member/719-287-4335

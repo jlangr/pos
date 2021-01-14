@@ -1,6 +1,6 @@
 class MembersController < ApplicationController
   before_action :set_member, only: [:show]
-  #
+
   # GET /members/:id
   def show
     json_response(@member)

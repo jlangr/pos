@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(version: 2021_01_14_001847) do
   end
 
   create_table "checkouts", force: :cascade do |t|
+    t.decimal "member_discount"
+    t.string "member_name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
