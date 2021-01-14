@@ -38,3 +38,19 @@ http post :3000/checkouts
 http post :3000/checkouts/1/scan/12345
 http get :3000/checkouts/1/total
 http post :3000/checkouts/1/scan_member/719-287-4335
+
+bundle exec rspec
+
+
+
+RSpec.describe Item, type: :model do
+  it { should belong_to(:checkout) }
+  it { should validate_presence_of(:name) }
+  it { should validate_presence_of(:upc) }
+end
+
+class Item < ApplicationRecord
+  belongs_to :checkout
+  validates_presence_of :description
+  validates_presence_of :upc
+end
