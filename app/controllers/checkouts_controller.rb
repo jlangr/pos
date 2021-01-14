@@ -1,7 +1,7 @@
-LINE_WIDTH=45
 
 class CheckoutsController < ApplicationController
   before_action :set_checkout, only: [:show, :scan, :checkout_total, :scan_member]
+  LINE_WIDTH=45
 
   def show
     json_response(@checkout)
@@ -9,7 +9,7 @@ class CheckoutsController < ApplicationController
 
   def create
     @checkout = Checkout.create!(checkout_params)
-    json_response(@checkout.id, :created)
+    json_response({ id: @checkout.id }, :created)
   end
 
   def scan
