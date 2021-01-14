@@ -1,3 +1,5 @@
+LINE_WIDTH=45
+
 class CheckoutsController < ApplicationController
   before_action :set_checkout, only: [:show, :scan, :checkout_total]
 
@@ -26,7 +28,6 @@ class CheckoutsController < ApplicationController
       price = item.price
       is_exempt = item.is_exempt
       if is_exempt
-
       else
         total += price
         text = item.description
@@ -34,11 +35,28 @@ class CheckoutsController < ApplicationController
         amount_width = amount.length
         
         text_width = LINE_WIDTH - amount_width
-        messages << text + amount
+        messages << text.ljust(text_width) + amount
       end
     end
 
-    json_response({id: @checkout.id, total: total, total_of_discounted_items: total_of_discounted_items, messages: messages, total_saved: total_saved})
+    // append total line
+    formatted_total = sprintf("%.2f", total.round(2))
+    formatted_total_width = formatted_total.length
+    text_width = LINE_WIDTH - formatted_total_width
+    messages << "TOTAL".ljust(text_width) + formatted_total
+
+    if total_saved > 0
+      formatted_total = sprintf("%.2f", total_saved.round(2))
+      puts("formatted_total: #{formatted_total}")
+      formatted_total_width = formatted_total.length
+      text_width = LINE_WIDTH - formatted_total_width
+      messages << "*** You saved:".ljust(text_width) + formatted_total
+    end
+
+    total_of_discounted_items = sprintf("%.2f", total_of_discounted_items.round(2))
+    total_saved = sprintf("%.2f", total_saved.round(2))
+
+    json_response({checkout_id: @checkout.id, total: total, total_of_discounted_items: total_of_discounted_items, messages: messages, total_saved: total_saved})
   end
 
   private
