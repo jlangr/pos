@@ -1,5 +1,5 @@
 class CheckoutsController < ApplicationController
-  before_action :set_checkout, only: [:show, :scan]
+  before_action :set_checkout, only: [:show, :scan, :checkout_total]
 
   def create
     @checkout = Checkout.create!(checkout_params)
@@ -13,7 +13,32 @@ class CheckoutsController < ApplicationController
   end
 
   def checkout_total
-    json_response({id: @checkout.id, 100.00, 10.00, [], 5.25})
+    # verify checkout id
+    
+    messages = []
+
+    total_of_discounted_items = 0
+    total = 0
+    total_saved = 0
+
+    @checkout.checkout_items.each do | checkout_item |
+      item = Item.find_by(checkout_item.upc)
+      price = item.price
+      is_exempt = item.is_exempt
+      if is_exempt
+
+      else
+        total += price
+        text = item.description
+        amount = sprintf("%.2f", price.round(2))
+        amount_width = amount.length
+        
+        text_width = LINE_WIDTH - amount_width
+        messages << text + amount
+      end
+    end
+
+    json_response({id: @checkout.id, total: total, total_of_discounted_items: total_of_discounted_items, messages: messages, total_saved: total_saved})
   end
 
   private
