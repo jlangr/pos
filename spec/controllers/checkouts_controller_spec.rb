@@ -16,7 +16,6 @@ RSpec.describe 'checkouts API', type: :request do
       before { get "/checkouts/#{checkout_id}" }
 
       it "returns the checkout" do
-        puts "response #{response.body}"
         expect(json["id"]).to eq(checkout_id)
       end
 
@@ -53,14 +52,29 @@ RSpec.describe 'checkouts API', type: :request do
         expect(json["member_discount"]).to be_nil
       end
 
-      context "when scanning a member" do
+      context "given a valid member scan" do
         before {
           post "/checkouts/#{checkout_id}/scan_member/719-287-4335"
-          get "/checkouts/#{checkout_id}" 
         }
 
-        it "has attached member information" do
-          expect(json["member_discount"]).to eq("0.123")
+        context "when the checkout is retrieved" do
+          before {
+            get "/checkouts/#{checkout_id}" 
+          }
+
+          it "has attached member information" do
+            expect(json["member_discount"]).to eq("0.123")
+          end
+        end
+      end
+
+      context "when an invalid member is scanned" do
+        before {
+          post "/checkouts/#{checkout_id}/scan_member/99999"
+        }
+
+        it "returns a 404" do
+          expect(response).to have_http_status(404)
         end
       end
     end
@@ -72,6 +86,38 @@ RSpec.describe 'checkouts API', type: :request do
 
       expect(response).to have_http_status(404)
       expect(response.body).to match(/Couldn't find Checkout/)
+    end
+  end
+
+  describe "checkout totals", :only => true do
+    it "does stuff" do
+      post "/checkouts", params: {}
+      checkout_id = json["id"]
+      post "/members", params: { name: "Ji Yang", phone: "719-287-4335", discount: "0.03" }
+      post "/checkouts/#{checkout_id}/scan_member/719-287-4335"
+      post "/items/", params: { upc: "77332", description: "Pescanova Smelt Headless - 16oz", price: 7.78 }
+      post "/items/", params: { upc: "84420", description: "Kellogs Bran Flakes Family Size 24oz", price: 4.72 }
+      post "/items", params: {upc: "92311", description: "PowerBall ticket with SuperScam option", price: 10.50, is_exempt: true }
+      puts "checkout id: #{checkout_id}"
+      post "/checkouts/#{checkout_id}/scan/84420"
+      post "/checkouts/#{checkout_id}/scan/77332"
+      get "/checkouts/#{checkout_id}"
+      get "/checkouts/#{checkout_id}/total"
+      expect(json["total"]).to eq "12.13"
+      post "/checkouts/#{checkout_id}/scan/92311"
+      get "/checkouts/#{checkout_id}/total"
+      expect(json["total"]).to eq "22.63"
+      expect(json["total_of_discounted_items"]).to eq "12.13"
+      expect(json["total_saved"]).to eq "0.37"
+
+      expect(json["messages"]).to eq([
+        "Kellogs Bran Flakes Family Size 24oz     4.72",
+        "   3.0% mbr disc                        -0.14",
+        "Pescanova Smelt Headless - 16oz          7.78",
+        "   3.0% mbr disc                        -0.23",
+        "PowerBall ticket with SuperScam option  10.50",
+        "TOTAL                                   22.63",
+        "*** You saved:                           0.37"])
     end
   end
 end

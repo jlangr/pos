@@ -24,9 +24,8 @@ class CheckoutsController < ApplicationController
 
   def scan_member
     member = Member.find_by(phone: params[:member_phone])
-    @checkout.member_name = member.name
-    @checkout.member_discount = member.discount
-    @checkout.save!
+    return json_response({}, :not_found) unless member
+    add_member_to_checkout(member)
   end
 
   def checkout_total
@@ -38,7 +37,7 @@ class CheckoutsController < ApplicationController
     total_saved = 0
 
     @checkout.checkout_items.each do | checkout_item |
-      item = Item.find_by(checkout_item.upc)
+      item = Item.find_by(upc: checkout_item.upc)
       price = item.price
       is_exempt = item.is_exempt
       if not is_exempt and discount > 0
@@ -63,7 +62,7 @@ class CheckoutsController < ApplicationController
         text = "   #{discount * 100}% mbr disc"
         messages << "#{text.ljust(text_width)}#{discount_formatted}"
 
-        total_saved += discount_amount
+        total_saved += discount_amount.round(2)
       else
         total += price
         text = item.description
@@ -82,18 +81,17 @@ class CheckoutsController < ApplicationController
     messages << "TOTAL".ljust(text_width) + formatted_total
 
     if total_saved > 0
-      formatted_total = sprintf("%.2f", total_saved.round(2))
-      puts("formatted_total: #{formatted_total}")
-      formatted_total_width = formatted_total.length
-      text_width = LINE_WIDTH - formatted_total_width
-      messages << "*** You saved:".ljust(text_width) + formatted_total
+      formatted_total_saved = sprintf("%.2f", total_saved.round(2))
+      formatted_total_saved_width = formatted_total_saved.length
+      text_width = LINE_WIDTH - formatted_total_saved_width
+      messages << "*** You saved:".ljust(text_width) + formatted_total_saved
     end
 
     total_of_discounted_items = sprintf("%.2f", total_of_discounted_items.round(2))
     total_saved = sprintf("%.2f", total_saved.round(2))
 
     # send total saved instead
-    json_response({checkout_id: @checkout.id, total: total, total_of_discounted_items: total_of_discounted_items, messages: messages, total_saved: total_saved})
+    json_response({checkout_id: @checkout.id, total: formatted_total, total_of_discounted_items: total_of_discounted_items, messages: messages, total_saved: formatted_total_saved})
   end
 
   private
@@ -117,5 +115,11 @@ class CheckoutsController < ApplicationController
   def set_checkout
 #    @checkout = Checkout.find(params[:id])
     @checkout = Checkout.includes(:checkout_items).find(params[:id])
+  end
+
+  def add_member_to_checkout(member)
+    @checkout.member_name = member.name
+    @checkout.member_discount = member.discount
+    @checkout.save!
   end
 end
