@@ -20,27 +20,50 @@ RSpec.describe 'checkouts API', type: :request do
         expect(json["id"]).to eq(checkout_id)
       end
 
-    #   it "returns status 200" do
-    #     expect(response).to have_http_status(200)
-    #   end
+      it "returns status 200" do
+        expect(response).to have_http_status(200)
+      end
     end
 
-    # describe "scanning items" do
-    #   before {
-    #     post "/items/", params: { upc: "12345", description: "eggs", price: 2.25 }
-    #     post "/checkouts/#{checkout_id}/scan/12345"
-    #   }
+    describe "scanning items" do
+      before {
+        post "/items/", params: { upc: "12345", description: "eggs", price: 2.25 }
+        post "/checkouts/#{checkout_id}/scan/12345"
+      }
 
-    #   it "returns item with details" do
-    #     expect(json["description"]).to eq("eggs")
-    #     expect(json["price"]).to eq("2.25")
-    #   end
+      it "returns item with details" do
+        expect(json["description"]).to eq("eggs")
+        expect(json["price"]).to eq("2.25")
+      end
 
-    #   # it "updates checkout with item" do
-    #   #   get "/checkouts/#{checkout_id}"
-    #   #   puts "retrieved checkout: #{json}"
-    #   # end
-    # end
+      it "updates checkout with item" do
+        get "/checkouts/#{checkout_id}"
+        expect(json["items"].count).to eq(1)
+        expect(json["items"][0]["upc"]).to eq("12345")
+      end
+    end
+
+    describe "scanning a member" do
+      before {
+        post "/members", params: { name: "Ji Yang", phone: "719-287-4335", discount: "0.123" }
+        get "/checkouts/#{checkout_id}" 
+      }
+
+      it "has no member initially" do
+        expect(json["member_discount"]).to be_nil
+      end
+
+      context "when scanning a member" do
+        before {
+          post "/checkouts/#{checkout_id}/scan_member/719-287-4335"
+          get "/checkouts/#{checkout_id}" 
+        }
+
+        it "has attached member information" do
+          expect(json["member_discount"]).to eq("0.123")
+        end
+      end
+    end
   end
 
   describe "when requesting a nonexistent checkout" do
