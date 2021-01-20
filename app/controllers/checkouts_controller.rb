@@ -27,7 +27,7 @@ class CheckoutsController < ApplicationController
     add_member_to_checkout(member)
   end
 
-  def credit_verify
+  def charge
     params.permit(:id, :name, :card, :exp, :amount)
     puts "credit verify #{params}"
   end
