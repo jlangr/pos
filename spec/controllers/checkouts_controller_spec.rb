@@ -80,6 +80,12 @@ RSpec.describe 'checkouts API', type: :request do
     end
   end
 
+  describe "credit verification" do
+    it "posts" do
+      post "checkouts/:id/credit_verify"
+    end
+  end
+
   describe "when requesting a nonexistent checkout" do
     it "returns not found error" do
       get "/checkouts/99999"

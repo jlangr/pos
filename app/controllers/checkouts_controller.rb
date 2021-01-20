@@ -1,4 +1,3 @@
-
 class CheckoutsController < ApplicationController
   before_action :set_checkout, only: [:show, :scan, :checkout_total, :scan_member]
   LINE_WIDTH=45
@@ -26,6 +25,11 @@ class CheckoutsController < ApplicationController
     member = Member.find_by(phone: params[:member_phone])
     return json_response({}, :not_found) unless member
     add_member_to_checkout(member)
+  end
+
+  def credit_verify
+    params.permit(:id, :name, :card, :exp, :amount)
+    puts "credit verify #{params}"
   end
 
   def checkout_total
