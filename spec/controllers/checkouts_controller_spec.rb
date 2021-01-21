@@ -82,7 +82,7 @@ RSpec.describe 'checkouts API', type: :request do
 
   describe "credit verification" do
     it "posts" do
-      post "checkouts/:id/credit_verify"
+      post "/checkouts/:id/charge"
     end
   end
 
